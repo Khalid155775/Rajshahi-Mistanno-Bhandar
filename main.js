@@ -1,6 +1,7 @@
 (() => {
     const STORAGE_KEY = 'foodfame_sweets_db';
-    const TROLLEY_KEY = 'Mistanno_trolley';
+    const TROLLEY_KEY = 'mistanon_trolley';
+    const LEGACY_TROLLEY_KEY = 'Mistanno_trolley';
     const MERCHANT_PHONE = '01921445232';
 
     const firebaseConfig = {
@@ -32,10 +33,12 @@
     }];
 
     let trolley = [];
+    let activeSweetDetailsId = null;
+    let modalQuantity = 1;
 
     function loadTrolley() {
         try {
-            const stored = localStorage.getItem(TROLLEY_KEY);
+            const stored = localStorage.getItem(TROLLEY_KEY) || localStorage.getItem(LEGACY_TROLLEY_KEY);
             return stored ? JSON.parse(stored) : [];
         } catch (error) {
             return [];
@@ -48,6 +51,7 @@
 
     function saveTrolley() {
         localStorage.setItem(TROLLEY_KEY, JSON.stringify(trolley));
+        localStorage.setItem(LEGACY_TROLLEY_KEY, JSON.stringify(trolley));
     }
 
     function hydrateSweetsFromLocalStorage() {
@@ -98,23 +102,14 @@
         }
 
         container.innerHTML = globalSweets.map((sweet) => `
-            <article class="group flex min-h-[320px] w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#18191a] p-1 shadow-[0_18px_45px_rgba(0,0,0,0.35)] box-border md:p-2">
+            <article class="group flex min-h-[320px] w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#18191a] p-1 shadow-[0_18px_45px_rgba(0,0,0,0.35)] box-border transition hover:-translate-y-1 hover:border-amber-400/40 md:p-2">
                 <div class="h-44 w-full overflow-hidden rounded-t-2xl bg-slate-100">
                     <img src="${sweet.img}" alt="${sweet.name}" class="h-full w-full object-cover" onerror="this.style.display='none'" />
                 </div>
                 <div class="flex flex-1 flex-col p-3 sm:p-4">
-                    <div class="flex items-start justify-between gap-2">
-                        <h3 class="text-sm font-semibold leading-5 text-white">${sweet.name}</h3>
-                        <span class="shrink-0 text-sm font-bold text-amber-400">৳${sweet.price}</span>
-                    </div>
-                    <p class="mt-2 text-xs leading-5 text-slate-400">${sweet.desc}</p>
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        <span class="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-300">PREMIUM</span>
-                        <span class="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-300">RICH</span>
-                    </div>
-                    <div class="mt-auto pt-3">
-                        <button type="button" class="block w-full rounded-xl bg-[#ffeb3b] px-3 py-2.5 text-[11px] font-black uppercase tracking-[0.3em] text-black shadow-lg shadow-amber-400/20 transition hover:brightness-105" data-name="${sweet.name}" data-price="${sweet.price}" data-image="${sweet.img}">ADD TO CART</button>
-                    </div>
+                    <h3 class="text-sm font-semibold leading-5 text-white">${sweet.name}</h3>
+                    <p class="mt-2 text-sm font-bold text-amber-400">৳${sweet.price}</p>
+                    <button type="button" onclick="openSweetDetailsModal('${sweet.id}')" class="mt-4 block w-full rounded-xl bg-[#ffeb3b] px-3 py-2.5 text-[11px] font-black uppercase tracking-[0.3em] text-black shadow-lg shadow-amber-400/20 transition hover:brightness-105">VIEW DETAILS</button>
                 </div>
             </article>
         `).join('');
@@ -450,8 +445,107 @@
     function syncBodyOverflow() {
         const checkoutView = document.getElementById('checkout-view');
         const paymentView = document.getElementById('payment-popup-view');
-        const anyOpen = (checkoutView && !checkoutView.classList.contains('hidden')) || (paymentView && !paymentView.classList.contains('hidden'));
+        const detailsModal = document.getElementById('sweet-details-modal');
+        const anyOpen = (checkoutView && !checkoutView.classList.contains('hidden')) || (paymentView && !paymentView.classList.contains('hidden')) || (detailsModal && !detailsModal.classList.contains('hidden'));
         document.body.style.overflow = anyOpen ? 'hidden' : '';
+    }
+
+    function openSweetDetailsModal(sweetId) {
+        const sweet = globalSweets.find((item) => String(item.id) === String(sweetId));
+        if (!sweet) {
+            return;
+        }
+
+        activeSweetDetailsId = String(sweet.id);
+        modalQuantity = 1;
+        modalActiveVariant = 0;
+
+        const modal = document.getElementById('sweet-details-modal');
+        const nameEl = document.getElementById('modal-sweet-name');
+        const priceEl = document.getElementById('modal-base-price');
+        const descriptionEl = document.getElementById('modal-sweet-description');
+        const imageEl = document.getElementById('modal-sweet-image');
+        const quantityEl = document.getElementById('modal-quantity');
+        const totalEl = document.getElementById('modal-total-price');
+        const instructionsEl = document.getElementById('modal-special-instructions');
+        const counterEl = document.getElementById('modal-instruction-counter');
+
+        if (!modal || !nameEl || !priceEl || !descriptionEl || !imageEl || !quantityEl || !totalEl || !instructionsEl || !counterEl) {
+            return;
+        }
+
+        nameEl.textContent = sweet.name;
+        priceEl.textContent = `RS. ${Number(sweet.price || 0).toLocaleString('en-BD')}`;
+        descriptionEl.textContent = sweet.desc || 'A refined handcrafted confection with premium flavor and elegant presentation.';
+        imageEl.src = sweet.img || '';
+        imageEl.alt = sweet.name;
+        quantityEl.textContent = String(modalQuantity);
+        instructionsEl.value = '';
+        counterEl.textContent = '0/500';
+
+        updateSweetDetailsModalPricing();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        syncBodyOverflow();
+    }
+
+    function closeSweetDetailsModal() {
+        const modal = document.getElementById('sweet-details-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        activeSweetDetailsId = null;
+        modalQuantity = 1;
+        syncBodyOverflow();
+    }
+
+    function updateSweetDetailsModalPricing() {
+        const totalEl = document.getElementById('modal-total-price');
+        const quantityEl = document.getElementById('modal-quantity');
+        const selectedSweet = globalSweets.find((item) => String(item.id) === String(activeSweetDetailsId));
+
+        if (!selectedSweet || !totalEl || !quantityEl) {
+            return;
+        }
+
+        const basePrice = Number(selectedSweet.price) || 0;
+        const total = basePrice * modalQuantity;
+        totalEl.textContent = `৳${total.toFixed(2)}`;
+        quantityEl.textContent = String(modalQuantity);
+    }
+
+    function addSweetToCartFromModal() {
+        const selectedSweet = globalSweets.find((item) => String(item.id) === String(activeSweetDetailsId));
+        if (!selectedSweet) {
+            return;
+        }
+
+        const instructions = document.getElementById('modal-special-instructions')?.value?.trim() || '';
+        const cartName = selectedSweet.name;
+        const itemPrice = Number(selectedSweet.price) || 0;
+
+        const existing = trolley.find((cartItem) => cartItem.name === cartName);
+        if (existing) {
+            existing.quantity += modalQuantity;
+            if (instructions) {
+                existing.instructions = existing.instructions ? `${existing.instructions} | ${instructions}` : instructions;
+            }
+        } else {
+            trolley.push({
+                name: cartName,
+                price: itemPrice,
+                image: selectedSweet.img || '',
+                quantity: modalQuantity,
+                instructions
+            });
+        }
+
+        trolley = [...trolley];
+        localStorage.setItem(TROLLEY_KEY, JSON.stringify(trolley));
+        localStorage.setItem(LEGACY_TROLLEY_KEY, JSON.stringify(trolley));
+        renderCartDrawer();
+        closeSweetDetailsModal();
     }
 
     function showCheckoutView() {
@@ -552,6 +646,43 @@
         showCheckoutView();
     }
 
+    function initSweetDetailsModalInteractions() {
+        const modal = document.getElementById('sweet-details-modal');
+        const instructionsEl = document.getElementById('modal-special-instructions');
+
+        if (modal) {
+            modal.addEventListener('click', (event) => {
+                const closeButton = event.target.closest('[data-action="close-sweet-details"]');
+                if (closeButton) {
+                    closeSweetDetailsModal();
+                    return;
+                }
+
+                const quantityButton = event.target.closest('[data-modal-quantity-action]');
+                if (quantityButton) {
+                    const delta = quantityButton.dataset.modalQuantityAction === 'increase' ? 1 : -1;
+                    modalQuantity = Math.max(1, modalQuantity + delta);
+                    updateSweetDetailsModalPricing();
+                    return;
+                }
+
+                const addButton = event.target.closest('#modal-add-to-cart');
+                if (addButton) {
+                    addSweetToCartFromModal();
+                }
+            });
+        }
+
+        if (instructionsEl) {
+            instructionsEl.addEventListener('input', () => {
+                const counter = document.getElementById('modal-instruction-counter');
+                if (counter) {
+                    counter.textContent = `${Math.min(instructionsEl.value.length, 500)}/500`;
+                }
+            });
+        }
+    }
+
     function initCartInteractions() {
         const cartElement = document.getElementById('shopping-cart');
         const closeBtn = document.getElementById('close-cart-btn');
@@ -619,17 +750,6 @@
         }
 
         document.body.addEventListener('click', (event) => {
-            const button = event.target.closest('[data-name][data-price]');
-            if (button) {
-                addItemToCart({
-                    name: button.dataset.name,
-                    price: Number(button.dataset.price) || 0,
-                    image: button.dataset.image || '',
-                    quantity: 1
-                });
-                return;
-            }
-
             const qtyButton = event.target.closest('[data-action][data-index]');
             if (!qtyButton) {
                 return;
@@ -689,6 +809,7 @@
         hydrateSweetsFromLocalStorage();
         initHamburgerMenu();
         initTypewriterAnimation();
+        initSweetDetailsModalInteractions();
         initCartInteractions();
         initGeolocationCheckout();
         syncViews();
@@ -717,4 +838,6 @@
     window.removeProductFromCart = removeProductFromCart;
     window.closeCheckoutPopUp = closeCheckoutPopUp;
     window.closePaymentPopUp = closePaymentPopUp;
+    window.openSweetDetailsModal = openSweetDetailsModal;
+    window.closeSweetDetailsModal = closeSweetDetailsModal;
 })();

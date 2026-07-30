@@ -59,6 +59,66 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 max-w-7xl mx-auto" id="customer-sweets-grid"></div>
     </main>
 
+    <div id="sweet-details-modal" class="hidden fixed inset-0 w-full h-full bg-black/70 backdrop-blur-md items-center justify-center z-50 p-4">
+        <div class="relative flex w-full max-w-4xl flex-col overflow-hidden rounded-[32px] bg-white text-zinc-800 shadow-2xl md:flex-row animate-fade-in">
+            <div class="absolute right-4 top-4 z-10 flex items-center gap-2">
+                <button type="button" class="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition hover:border-zinc-300 hover:text-zinc-900" aria-label="Share sweet">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                <button type="button" data-action="close-sweet-details" class="flex h-10 w-10 items-center justify-center rounded-full bg-rose-600 text-lg font-semibold text-white shadow-lg transition hover:bg-rose-700" aria-label="Close sweet details">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="w-full bg-zinc-100 md:w-1/2 md:h-[500px]">
+                <div class="relative h-64 w-full md:h-full">
+                    <img id="modal-sweet-image" src="" alt="Sweet preview" class="h-full w-full object-cover" />
+                </div>
+                <div class="flex items-center justify-center gap-2 py-3">
+                    <span class="h-2.5 w-2.5 rounded-full bg-zinc-400"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-zinc-400"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-zinc-400"></span>
+                </div>
+            </div>
+
+            <div class="flex flex-1 flex-col justify-between p-6 sm:p-8 lg:p-10">
+                <div>
+                    <p class="text-[11px] font-black uppercase tracking-[0.35em] text-rose-600">Luxury Selection</p>
+                    <h3 id="modal-sweet-name" class="mt-3 text-3xl font-black leading-tight text-zinc-900">Sweet Name</h3>
+                    <p id="modal-base-price" class="mt-2 text-lg font-semibold text-zinc-500">RS. 0</p>
+                    <p id="modal-sweet-description" class="mt-4 text-sm leading-7 text-zinc-600">A refined handcrafted confection with premium flavor and elegant presentation.</p>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-2">
+                    <span class="rounded-full border border-amber-400/20 bg-zinc-800 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">PREMIUM</span>
+                    <span class="rounded-full border border-amber-400/20 bg-zinc-800 px-3 py-1 text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">RICH</span>
+                </div>
+
+                <div class="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                    <label for="modal-special-instructions" class="text-sm font-semibold text-zinc-700">Special Instructions</label>
+                    <textarea id="modal-special-instructions" maxlength="500" rows="4" class="mt-3 w-full resize-none rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-700 outline-none focus:border-rose-400" placeholder="Add any custom notes for your order..."></textarea>
+                    <div class="mt-2 text-right text-xs font-medium text-zinc-400"><span id="modal-instruction-counter">0/500</span></div>
+                </div>
+            </div>
+
+            <div class="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-rose-700 px-4 py-3 sm:px-6">
+                <div class="flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 text-white">
+                    <button type="button" data-modal-quantity-action="decrease" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-xl font-semibold transition hover:bg-white/30">−</button>
+                    <span id="modal-quantity" class="min-w-[1.2rem] text-center text-sm font-semibold">1</span>
+                    <button type="button" data-modal-quantity-action="increase" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-xl font-semibold transition hover:bg-white/30">+</button>
+                </div>
+                <div class="text-center text-sm font-semibold text-white/90">
+                    <span class="block text-[10px] uppercase tracking-[0.3em] text-white/70">Total</span>
+                    <span id="modal-total-price" class="text-lg font-black">৳0.00</span>
+                </div>
+                <button id="modal-add-to-cart" type="button" class="flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-black uppercase tracking-[0.25em] text-rose-700 shadow-md transition hover:bg-zinc-100">
+                    Add to Cart
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="checkout-view" class="hidden fixed inset-0 w-full h-full bg-black/75 backdrop-blur-md items-start justify-center z-50 p-2 sm:p-4 overflow-y-scroll scrollbar-none">
         <div class="w-full max-w-4xl bg-zinc-900/95 border border-white/10 p-5 md:p-8 pt-20 sm:pt-8 my-6 sm:my-0 rounded-3xl shadow-2xl relative flex flex-col lg:flex-row gap-6 animate-fade-in text-left min-h-max max-h-none">
             <button onclick="closeCheckoutPopUp()" class="absolute top-4 right-4 text-zinc-400 hover:text-red-500 text-lg transition z-50" aria-label="Close checkout"><i class="fa-solid fa-xmark"></i></button>
