@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rajshahi Mistanno Bhandar - Luxury Dining Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="royal/css/style.css?v=3.5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <div class="logo-box">RB</div>
+                <span class="restaurant-name">Rajshahi Mistanno Bhandar</span>
+            </div>
+
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link">HOME</a></li>
+                <li><a href="about.html" class="nav-link">ABOUT</a></li>
+                <li><a href="contact.html" class="nav-link">CONTACT</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="hero-subtitle">LUXURY DINING EXPERIENCE</p>
+            <p class="hero-welcome">Welcome to</p>
+            <h1 class="hero-title" id="typed-brand-text"></h1>
+        </div>
+    </section>
+
+    <main class="food-page" id="home-view">
+        <div class="section-heading">
+            <div class="section-title">
+                <p class="section-label">CURATED FLAVORS</p>
+                <h2>Our Signature Menu</h2>
+                <p class="section-description">A refined collection of starters and main courses, crafted to deliver a memorable luxury dining experience.</p>
+            </div>
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">ALL</button>
+                <button class="filter-btn" data-filter="starters">STARTERS</button>
+                <button class="filter-btn" data-filter="main-course">MAIN COURSE</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 max-w-7xl mx-auto" id="customer-sweets-grid"></div>
+    </main>
+
+    <div id="checkout-view" class="hidden fixed inset-0 w-full h-full bg-black/75 backdrop-blur-md items-start justify-center z-50 p-2 sm:p-4 overflow-y-scroll scrollbar-none">
+        <div class="w-full max-w-4xl bg-zinc-900/95 border border-white/10 p-5 md:p-8 pt-20 sm:pt-8 my-6 sm:my-0 rounded-3xl shadow-2xl relative flex flex-col lg:flex-row gap-6 animate-fade-in text-left min-h-max max-h-none">
+            <button onclick="closeCheckoutPopUp()" class="absolute top-4 right-4 text-zinc-400 hover:text-red-500 text-lg transition z-50" aria-label="Close checkout"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex-1 rounded-3xl border border-white/10 bg-zinc-950/70 p-6 md:p-8">
+                <p class="text-amber-500 text-xs font-bold tracking-[0.35em]">DELIVERY DETAILS</p>
+                <h3 class="mt-3 text-2xl font-black text-white">Complete your royal food order.</h3>
+                <div class="mt-6 space-y-4">
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-zinc-300" for="checkout-name">Full Name</label>
+                        <input id="checkout-name" type="text" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-amber-400 focus:outline-none" placeholder="Enter your full name" />
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-zinc-300" for="checkout-phone">Phone Number</label>
+                        <input id="checkout-phone" type="tel" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-amber-400 focus:outline-none" placeholder="Enter phone number" />
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-zinc-300" for="checkout-address">Full Delivery Address</label>
+                        <textarea id="checkout-address" rows="5" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-amber-400 focus:outline-none" placeholder="Enter your full delivery address"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full lg:max-w-md rounded-3xl border border-white/10 bg-zinc-950/70 p-6 md:p-8">
+                <p class="text-amber-500 text-xs font-bold tracking-[0.35em]">ORDER SUMMARY</p>
+                <h3 class="mt-3 text-2xl font-black text-white">Your final receipt</h3>
+                <div id="final-receipt-items" class="space-y-3 my-4"></div>
+                <div class="space-y-3 border-t border-white/10 pt-4 text-sm text-zinc-300">
+                    <div class="flex items-center justify-between"><span>Subtotal</span><span id="checkout-subtotal">৳0.00</span></div>
+                    <div class="flex items-center justify-between"><span>Tax (8%)</span><span id="checkout-tax">৳0.00</span></div>
+                    <div class="flex items-center justify-between border-t border-white/10 pt-3 text-base font-semibold text-white"><span>Grand Total</span><span id="checkout-grand-total" class="text-amber-400">৳0.00</span></div>
+                </div>
+                <button id="final-checkout-btn" class="mt-6 block w-full rounded-xl bg-white py-3 text-center text-xs font-black uppercase tracking-[0.3em] text-black shadow-lg transition hover:bg-zinc-200">PLACE ORDER VIA WHATSAPP</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payment-popup-view" class="hidden fixed inset-0 w-full h-full bg-black/80 backdrop-blur-md items-center justify-center z-50 p-4">
+        <div class="relative mx-auto w-full max-w-sm rounded-2xl border border-white/10 bg-zinc-900/95 p-6 text-left shadow-2xl animate-fade-in">
+            <button onclick="closePaymentPopUp()" class="absolute top-4 right-4 text-zinc-400 transition hover:text-red-500 text-base" aria-label="Close payment popup"><i class="fa-solid fa-xmark"></i></button>
+            <p class="text-amber-500 text-xs font-bold tracking-[0.35em]">PAYMENT</p>
+            <h3 class="mt-3 text-xl font-black text-white">Choose Your Payment Method</h3>
+            <div class="mt-5 rounded-2xl border border-white/10 bg-white/5 p-2">
+                <label class="flex items-center justify-between rounded-xl border border-amber-400/50 bg-amber-400/10 p-3 text-sm font-semibold text-white">
+                    <span class="flex items-center gap-2"><span>💵</span><span>Cash on Delivery</span></span>
+                    <span class="flex h-5 w-5 items-center justify-center rounded-full border border-amber-400/70 bg-amber-400/20 text-amber-400">✓</span>
+                </label>
+            </div>
+            <div class="mt-6 rounded-xl border border-white/10 bg-zinc-950/70 px-4 py-3 text-sm text-zinc-400">
+                Secure delivery confirmation will be sent to your WhatsApp chat once you confirm the order.
+            </div>
+            <button id="payment-confirm-btn" class="mt-6 block w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-center text-xs font-black uppercase tracking-[0.3em] text-white shadow-md shadow-emerald-500/10 transition hover:from-emerald-600">Confirm order via whatsapp</button>
+        </div>
+    </div>
+
+    <div class="shopping-cart" id="shopping-cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge" id="cart-badge">0</span>
+    </div>
+
+    <div id="cart-drawer-overlay" class="fixed inset-0 z-40 bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out">
+        <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-sm bg-zinc-950/95 backdrop-blur-md border-l border-white/10 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-6 text-left flex flex-col justify-between">
+            <div>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-white">Your Cart</h3>
+                        <p class="mt-1 text-sm text-zinc-400">Review your selected luxury items</p>
+                    </div>
+                    <button id="close-cart-btn" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-2xl font-semibold text-zinc-200 transition hover:bg-white/10" aria-label="Close cart">×</button>
+                </div>
+                <div id="cart-items-wrapper" class="mt-6 flex-1 overflow-y-auto"></div>
+            </div>
+            <div class="mt-6 border-t border-white/10 pt-4">
+                <div class="space-y-3 text-sm text-zinc-300">
+                    <div class="flex items-center justify-between"><span>Subtotal</span><span id="cart-subtotal">৳0.00</span></div>
+                    <div class="flex items-center justify-between"><span>Tax (8%)</span><span id="cart-tax">৳0.00</span></div>
+                    <div class="flex items-center justify-between border-t border-white/10 pt-3 text-base font-semibold text-white"><span>Total</span><span id="cart-total" class="text-amber-400">৳0.00</span></div>
+                </div>
+                <button id="order-now-btn" class="mt-5 block w-full rounded-xl bg-white py-3 text-center text-xs font-black uppercase tracking-[0.3em] text-black shadow-lg transition hover:bg-zinc-200">ORDER NOW</button>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    <div class="footer-logo-box">RB</div>
+                    <span class="footer-restaurant-name">Rajshahi Mistanno Bhandar</span>
+                </div>
+            </div>
+
+            <div class="footer-right">
+                <div class="footer-section">
+                    <h4>EXPLORE</h4>
+                    <ul>
+                        <li><a href="#about">ABOUT</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>CONNECT</h4>
+                    <ul>
+                        <li><a href="#contact">CONTACT</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Rajshahi Mistanno Bhandar. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
