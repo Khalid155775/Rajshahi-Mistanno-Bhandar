@@ -59,8 +59,8 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 max-w-7xl mx-auto" id="customer-sweets-grid"></div>
     </main>
 
-    <div id="sweet-details-modal" class="hidden fixed inset-0 w-full h-full bg-black/70 backdrop-blur-md items-center justify-center z-50 p-4">
-        <div class="relative flex w-full max-w-4xl flex-col overflow-hidden rounded-[32px] bg-white text-zinc-800 shadow-2xl md:flex-row animate-fade-in">
+    <div id="sweet-details-modal" class="hidden fixed inset-0 w-full h-full bg-black/70 backdrop-blur-md overflow-y-auto items-start justify-center z-50 p-4 md:items-center">
+        <div class="w-full max-w-4xl bg-white text-zinc-800 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row gap-4 md:gap-8 animate-fade-in text-left my-4 md:my-0 h-[calc(100vh-2rem)] md:h-[450px] overflow-y-auto md:overflow-y-visible">
             <div class="absolute right-4 top-4 z-10 flex items-center gap-2">
                 <button type="button" class="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-sm transition hover:border-zinc-300 hover:text-zinc-900" aria-label="Share sweet">
                     <i class="fa-solid fa-share-nodes"></i>
@@ -70,9 +70,9 @@
                 </button>
             </div>
 
-            <div class="w-full bg-zinc-100 md:w-1/2 md:h-[500px]">
-                <div class="relative h-64 w-full md:h-full">
-                    <img id="modal-sweet-image" src="" alt="Sweet preview" class="h-full w-full object-cover" />
+            <div class="w-full md:w-1/2 h-48 sm:h-64 md:h-[450px] bg-zinc-100 relative shrink-0">
+                <div class="relative h-full w-full">
+                    <img id="modal-sweet-image" src="" alt="Sweet preview" class="w-full h-full object-cover" />
                 </div>
                 <div class="flex items-center justify-center gap-2 py-3">
                     <span class="h-2.5 w-2.5 rounded-full bg-zinc-400"></span>
@@ -101,7 +101,7 @@
                 </div>
             </div>
 
-            <div class="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-rose-700 px-4 py-3 sm:px-6">
+            <div class="relative mt-6 flex w-full flex-col gap-3 rounded-2xl bg-rose-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 md:absolute md:inset-x-0 md:bottom-0 md:mt-0 md:rounded-none">
                 <div class="flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 text-white">
                     <button type="button" data-modal-quantity-action="decrease" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-xl font-semibold transition hover:bg-white/30">−</button>
                     <span id="modal-quantity" class="min-w-[1.2rem] text-center text-sm font-semibold">1</span>

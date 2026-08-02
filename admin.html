@@ -73,6 +73,35 @@
         </div>
     </div>
 
+    <div id="admin-edit-modal" class="hidden fixed inset-0 w-full h-full bg-black/80 backdrop-blur-md items-center justify-center z-50 p-4">
+        <div class="bg-zinc-900 border border-white/10 p-6 rounded-2xl max-w-md w-full relative text-left shadow-2xl animate-fade-in">
+            <button onclick="closeAdminEditModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-red-500" aria-label="Close edit modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-semibold text-white">মিষ্টি তথ্য সম্পাদনা</h3>
+            <p class="mt-2 text-sm text-slate-400">প্রয়োজনীয় তথ্য আপডেট করে দ্রুত পরিবর্তন সংরক্ষণ করুন।</p>
+            <div class="mt-5 space-y-4">
+                <div>
+                    <label class="block text-sm uppercase tracking-[0.28em] text-slate-400">Sweet Name</label>
+                    <input id="edit-sweet-name" type="text" class="mt-2 w-full rounded-2xl border border-white/10 bg-zinc-950/70 px-4 py-3 text-white placeholder:text-slate-500 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-300/20" placeholder="e.g. রাজভোগ" />
+                </div>
+                <div>
+                    <label class="block text-sm uppercase tracking-[0.28em] text-slate-400">Price per kg</label>
+                    <input id="edit-sweet-price" type="number" class="mt-2 w-full rounded-2xl border border-white/10 bg-zinc-950/70 px-4 py-3 text-white placeholder:text-slate-500 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-300/20" placeholder="e.g. 320" min="1" />
+                </div>
+                <div>
+                    <label class="block text-sm uppercase tracking-[0.28em] text-slate-400">Description</label>
+                    <textarea id="edit-sweet-desc" rows="4" class="mt-2 w-full rounded-2xl border border-white/10 bg-zinc-950/70 px-4 py-3 text-white placeholder:text-slate-500 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-300/20" placeholder="Update product details..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm uppercase tracking-[0.28em] text-slate-400">Image File</label>
+                    <input type="file" id="edit-sweet-img-file" class="w-full bg-zinc-900 border border-white/10 rounded-xl p-2.5 text-xs text-white" accept="image/*">
+                </div>
+            </div>
+            <button type="button" onclick="saveSweetChangesFromAdmin()" class="mt-6 w-full rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200 px-5 py-3 text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-500/20 transition hover:opacity-95">পরিবর্তন সংরক্ষণ করুন</button>
+        </div>
+    </div>
+
     <script src="main.js"></script>
 </body>
 </html>

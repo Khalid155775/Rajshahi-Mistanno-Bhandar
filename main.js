@@ -35,6 +35,7 @@
     let trolley = [];
     let activeSweetDetailsId = null;
     let modalQuantity = 1;
+    let activeEditId = null;
 
     function loadTrolley() {
         try {
@@ -132,10 +133,153 @@
                         <p class="font-semibold text-white">${sweet.name}</p>
                         <p class="mt-1 text-sm text-slate-400">৳${sweet.price} • ${sweet.desc}</p>
                     </div>
-                    <button type="button" onclick="adminDeleteSweet('${sweet.id}')" class="rounded-full bg-rose-500/20 px-3 py-1 text-xs font-semibold text-rose-300">Delete</button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="openAdminEditModal('${sweet.id}')" class="text-zinc-400 hover:text-amber-400 transition px-2" aria-label="Edit sweet">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button type="button" onclick="adminDeleteSweet('${sweet.id}')" class="rounded-full bg-rose-500/20 px-3 py-1 text-xs font-semibold text-rose-300">Delete</button>
+                    </div>
                 </div>
             </div>
         `).join('');
+    }
+
+    function openAdminEditModal(sweetId) {
+        const modal = document.getElementById('admin-edit-modal');
+        const nameInput = document.getElementById('edit-sweet-name');
+        const priceInput = document.getElementById('edit-sweet-price');
+        const descInput = document.getElementById('edit-sweet-desc');
+        const fileInput = document.getElementById('edit-sweet-img-file');
+
+        if (!modal || !nameInput || !priceInput || !descInput || !fileInput) {
+            return;
+        }
+
+        activeEditId = String(sweetId);
+
+        const selectedSweet = globalSweets.find((sweet) => String(sweet.id) === String(sweetId));
+        if (selectedSweet) {
+            nameInput.value = selectedSweet.name || '';
+            priceInput.value = selectedSweet.price || '';
+            descInput.value = selectedSweet.desc || '';
+        }
+
+        fileInput.value = '';
+
+        if (db && typeof db.collection === 'function') {
+            db.collection('sweets').doc(activeEditId).get().then((doc) => {
+                if (!doc.exists) {
+                    return;
+                }
+
+                const data = doc.data() || {};
+                nameInput.value = data.name || nameInput.value;
+                priceInput.value = data.price || priceInput.value;
+                descInput.value = data.desc || descInput.value;
+            }).catch((err) => {
+                console.warn('Unable to load sweet for editing.', err);
+            });
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeAdminEditModal() {
+        const modal = document.getElementById('admin-edit-modal');
+        const nameInput = document.getElementById('edit-sweet-name');
+        const priceInput = document.getElementById('edit-sweet-price');
+        const descInput = document.getElementById('edit-sweet-desc');
+        const fileInput = document.getElementById('edit-sweet-img-file');
+
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        if (nameInput) {
+            nameInput.value = '';
+        }
+        if (priceInput) {
+            priceInput.value = '';
+        }
+        if (descInput) {
+            descInput.value = '';
+        }
+        if (fileInput) {
+            fileInput.value = '';
+        }
+
+        activeEditId = null;
+    }
+
+    function saveSweetChangesFromAdmin() {
+        const nameInput = document.getElementById('edit-sweet-name');
+        const priceInput = document.getElementById('edit-sweet-price');
+        const descInput = document.getElementById('edit-sweet-desc');
+        const fileInput = document.getElementById('edit-sweet-img-file');
+
+        if (!activeEditId) {
+            alert('No sweet is selected for editing.');
+            return;
+        }
+
+        if (!nameInput || !priceInput || !descInput || !fileInput) {
+            return;
+        }
+
+        const name = nameInput.value.trim();
+        const price = parseFloat(priceInput.value.trim());
+        const desc = descInput.value.trim();
+        const file = fileInput.files && fileInput.files[0];
+
+        if (!name || !desc || !price || Number.isNaN(price)) {
+            alert('Please complete all sweet details before saving.');
+            return;
+        }
+
+        const updatePayload = { name, price, desc };
+
+        const finishUpdate = () => {
+            globalSweets = globalSweets.map((sweet) => String(sweet.id) === String(activeEditId)
+                ? { ...sweet, name, price, desc, ...(updatePayload.img ? { img: updatePayload.img } : {}) }
+                : sweet);
+            saveSweets();
+            syncViews();
+            closeAdminEditModal();
+            alert('মিষ্টির তথ্য সফলভাবে আপডেট করা হয়েছে।');
+        };
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                updatePayload.img = reader.result;
+
+                if (db && typeof db.collection === 'function') {
+                    db.collection('sweets').doc(activeEditId).update(updatePayload)
+                        .then(finishUpdate)
+                        .catch((err) => {
+                            console.warn('Unable to update sweet image.', err);
+                            finishUpdate();
+                        });
+                } else {
+                    finishUpdate();
+                }
+            };
+            reader.readAsDataURL(file);
+            return;
+        }
+
+        if (db && typeof db.collection === 'function') {
+            db.collection('sweets').doc(activeEditId).update(updatePayload)
+                .then(finishUpdate)
+                .catch((err) => {
+                    console.warn('Unable to update sweet details.', err);
+                    finishUpdate();
+                });
+        } else {
+            finishUpdate();
+        }
     }
 
     function syncViews() {
@@ -486,6 +630,7 @@
         updateSweetDetailsModalPricing();
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        modal.scrollTop = 0;
         syncBodyOverflow();
     }
 
@@ -494,6 +639,7 @@
         if (modal) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            modal.scrollTop = 0;
         }
         activeSweetDetailsId = null;
         modalQuantity = 1;
@@ -840,4 +986,7 @@
     window.closePaymentPopUp = closePaymentPopUp;
     window.openSweetDetailsModal = openSweetDetailsModal;
     window.closeSweetDetailsModal = closeSweetDetailsModal;
+    window.openAdminEditModal = openAdminEditModal;
+    window.closeAdminEditModal = closeAdminEditModal;
+    window.saveSweetChangesFromAdmin = saveSweetChangesFromAdmin;
 })();
